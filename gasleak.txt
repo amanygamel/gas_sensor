@@ -1,0 +1,58 @@
+///////////////////////////////// 
+// Generated with a lot of love// 
+// with TUNIOT FOR ESP8266     // 
+// Website: Easycoding.tn      // 
+///////////////////////////////// 
+#include <ESP8266WiFi.h> 
+#include <ESP8266HTTPClient.h> 
+WiFiClient client; 
+HTTPClient http; 
+#define buzzer D3 
+#define Gas_pin A0 
+const char* ssid = "TE-Data";  // Enter your phone SSID here 
+const char* password = "NashNash1112010poja";  //Enter your phone password here 
+String path = "http://maker.ifttt.com/trigger/project/json/with/key/dHQmx7sxHFACyPusX4GBa7kNODQm0ewRcGCM5W2TDpe"; 
+int sensorThres = 400; 
+ 
+void setup() 
+{ 
+ 
+  Serial.begin(115200); 
+  Serial.printf("Connecting to %s ", ssid); 
+  WiFi.begin(ssid, password); 
+ 
+  while (WiFi.status() != WL_CONNECTED) 
+  { 
+    delay(500); 
+    Serial.print("."); 
+  } 
+  Serial.println(" connected"); 
+  pinMode(buzzer, OUTPUT); 
+  pinMode(Gas_pin, INPUT); 
+ 
+} 
+void loop() 
+{ 
+  int analogSensor = analogRead(Gas_pin); 
+  Serial.println(analogSensor); 
+  // Checks if it has reached the threshold value 
+  if (analogSensor > sensorThres) 
+  { 
+    Serial.print("gas leaked: "); 
+    tone(buzzer, 1000, 200); 
+    http.begin(client, path.c_str()); 
+    int responseStatusCode = http.GET(); 
+    Serial.println(http.getString()); 
+    http.end(); 
+  } 
+  else 
+  { 
+    Serial.println("no gas"); 
+    noTone(buzzer); 
+  } 
+  delay(100); 
+ 
+ 
+ 
+ 
+}
